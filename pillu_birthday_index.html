@@ -1,0 +1,338 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Happy Birthday, Pillu</title>
+<style>
+  :root{
+    --bg:#07061a;
+    --card:#0f0c2b;
+    --accent:#ff7fb3;
+    --soft:#f7f2ff;
+  }
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+  body{background: radial-gradient(ellipse at bottom, rgba(255,255,255,0.02) 0%, transparent 40%), linear-gradient(180deg,#021 0%, #07061a 100%); color:var(--soft); overflow:hidden; display:flex; align-items:center; justify-content:center;}
+  .app{width:100%;max-width:900px;margin:24px; position:relative; min-height:600px; border-radius:16px; padding:28px; box-sizing:border-box;}
+  /* Night sky stars */
+  .stars{position:absolute;inset:0;pointer-events:none;}
+  .star{position:absolute;background:radial-gradient(circle,rgba(255,255,255,.9) 0%, rgba(255,255,255,.2) 40%, rgba(255,255,255,0) 60%); border-radius:50%; opacity:0.0; animation:twinkle 6s linear infinite;}
+  @keyframes twinkle{0%{opacity:0.0;transform:scale(0.8);}50%{opacity:1;transform:scale(1);}100%{opacity:0;transform:scale(0.9);}}
+  /* Center stage */
+  .stage{position:relative; z-index:2; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:18px; text-align:center;}
+  h1{font-size:clamp(22px,4vw,44px); margin:0; letter-spacing:1px;}
+  .subtitle{opacity:.9;font-size:16px;margin-top:6px;}
+  /* Cake */
+  .cake-wrap{width:320px;height:220px; position:relative; display:flex; align-items:flex-end; justify-content:center;}
+  .cake{width:260px; height:120px; background:linear-gradient(180deg,#ffe6f0,#ffd9ec); border-radius:18px; position:relative; box-shadow:0 10px 30px rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; flex-direction:column; padding-top:8px;}
+  .frost{width:90%; height:26px; background:linear-gradient(180deg,#fff,#fbe9f3); border-radius:12px; margin-top:6px; box-shadow: inset 0 -6px 12px rgba(0,0,0,.04); position:relative;}
+  .candles{position:absolute; top:-34px; display:flex; gap:10px;}
+  .candle{width:8px; height:30px; background:linear-gradient(180deg,#fff,#ffe); border-radius:4px; position:relative; display:flex; align-items:flex-start; justify-content:center;}
+  .flame{width:12px; height:18px; background: radial-gradient(circle at 50% 30%, #fff 0%, #ffd46a 35%, #ff7b4a 70%, rgba(255,120,80,0) 71%); border-radius:50% 50% 40% 40%; position:absolute; top:-20px; filter:drop-shadow(0 6px 6px rgba(255,120,80,.12)); opacity:1; transform-origin:center bottom; animation:flicker 400ms infinite;}
+  @keyframes flicker{0%{transform:scale(1) translateY(0);}50%{transform:scale(.95) translateY(-1px);}100%{transform:scale(1) translateY(0);}}
+  .hint{font-size:15px; opacity:.95;}
+  .mic-perm{margin-top:6px; font-size:13px; opacity:.85;}
+  /* Slides */
+  .slides{position:relative; width:100%; height:420px; margin-top:12px; overflow:hidden; border-radius:12px;}
+  .slide{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:32px; box-sizing:border-box; transition:transform .9s cubic-bezier(.2,.8,.2,1),opacity .6s ease; opacity:0; transform:translateY(10px) scale(.98); pointer-events:none;}
+  .slide.active{opacity:1; transform:none; pointer-events:auto;}
+  .slide h2{font-size:clamp(20px,3.5vw,36px); margin:0;}
+  .roses{font-size:14px; opacity:.95;}
+  .message{white-space:pre-line; font-size:18px; line-height:1.45; max-width:760px;}
+  .end-actions{margin-top:12px;}
+  button.cta{background:linear-gradient(90deg,var(--accent),#ffb0d6); border:0; padding:10px 16px; border-radius:999px; color:#111; font-weight:700; cursor:pointer; box-shadow:0 8px 20px rgba(255,127,179,.12); font-size:15px;}
+  /* small controls */
+  .controls{position:absolute; left:20px; bottom:20px; z-index:4; display:flex; gap:8px; align-items:center;}
+  .small{font-size:13px; padding:6px 8px; border-radius:8px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.03); cursor:pointer;}
+  .hidden{display:none;}
+  footer.credit{position:absolute; right:18px; bottom:10px; font-size:12px; opacity:.6;}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="stars" id="stars"></div>
+  <div class="stage" id="intro">
+    <h1>Make a wish and blow out the candles, Pillu 💖</h1>
+    <div class="cake-wrap" aria-hidden="true">
+      <div class="candles" id="candles">
+        <div class="candle"><div class="flame"></div></div>
+        <div class="candle"><div class="flame"></div></div>
+        <div class="candle"><div class="flame"></div></div>
+        <div class="candle"><div class="flame"></div></div>
+        <div class="candle"><div class="flame"></div></div>
+      </div>
+      <div class="cake">
+        <div class="frost"></div>
+        <div style="height:36px"></div>
+      </div>
+    </div>
+    <div class="hint">Blow gently into your microphone — the candles will go out and the music will start.</div>
+    <div class="mic-perm" id="micperm">Tap "Allow Microphone" if prompted by the browser.</div>
+    <div style="margin-top:8px;">
+      <button class="cta" id="enableMic">Enable Microphone</button>
+      <button class="cta" id="fallbackBlow" style="margin-left:8px;background:#ffffff22;color:var(--soft);">Tap to "Blow" (fallback)</button>
+    </div>
+  </div>
+
+  <div class="slides" id="slides" aria-live="polite">
+    <div class="slide" id="s1">
+      <div>
+        <h2>Happy Birthday, Pillu 💖</h2>
+      </div>
+    </div>
+    <div class="slide" id="s2">
+      <div>
+        <div class="roses">🌹 🌹 🌹</div>
+      </div>
+    </div>
+    <div class="slide" id="s3">
+      <div class="message">
+I’m sorry I can’t be by your side today, Pillu.
+But my heart is right there with you,
+whispering happy birthday,
+and wishing you all the love in the world.
+      </div>
+    </div>
+    <div class="slide" id="s4">
+      <div>
+        <h2>I love you — always. 🌙</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="small" id="restart" title="Restart">Restart</button>
+    <button class="small" id="mute" title="Mute / Unmute">Mute</button>
+  </div>
+
+  <div class="end-actions" id="endActions" style="display:none;">
+    <button class="cta" id="replayBtn">Replay</button>
+  </div>
+
+  <footer class="credit">Made with ❤️</footer>
+</div>
+
+<script>
+/* Helper: build starfield */
+(function makeStars(){
+  const stars = document.getElementById('stars');
+  const w = window.innerWidth, h = window.innerHeight;
+  for(let i=0;i<60;i++){
+    const s = document.createElement('div');
+    s.className='star';
+    const size = Math.random()*3+1;
+    s.style.width = size+'px';
+    s.style.height = size+'px';
+    s.style.left = Math.random()*100+'%';
+    s.style.top = Math.random()*100+'%';
+    s.style.animationDelay = Math.random()*6+'s';
+    stars.appendChild(s);
+  }
+})();
+
+/* Slideshow logic */
+const slides = [...document.querySelectorAll('.slide')];
+let current = 0;
+function showSlide(i){
+  slides.forEach((s,idx)=> s.classList.toggle('active', idx===i));
+  current = i;
+  // show replay when finished
+  if(i===slides.length-1){ document.getElementById('endActions').style.display='block'; } else { document.getElementById('endActions').style.display='none'; }
+}
+function nextSlide(){
+  if(current < slides.length-1) showSlide(current+1);
+  else showSlide(0);
+}
+
+/* simple music synthesizer using WebAudio (soft piano-ish arpeggio) */
+let audioCtx, masterGain, isMuted=false, musicPlaying=false, seqInterval;
+function initAudio(){
+  if(audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  masterGain = audioCtx.createGain();
+  masterGain.gain.value = 0.0;
+  masterGain.connect(audioCtx.destination);
+}
+function playPianoLoop(){
+  if(!audioCtx) initAudio();
+  const now = audioCtx.currentTime;
+  masterGain.gain.cancelScheduledValues(now);
+  masterGain.gain.setValueAtTime(0.0001, now);
+  masterGain.gain.linearRampToValueAtTime(isMuted?0.0:0.22, now+1.2);
+
+  const notes = [440, 523.25, 659.25, 523.25]; // A4, C5, E5, C5
+  let t = 0;
+  clearInterval(seqInterval);
+  seqInterval = setInterval(()=>{
+    const idx = t % notes.length;
+    playNote(notes[idx], 0.9, 0.06, 0.6);
+    t++;
+  }, 600);
+  musicPlaying = true;
+}
+function stopMusic(){
+  if(!audioCtx) return;
+  clearInterval(seqInterval);
+  const now = audioCtx.currentTime;
+  masterGain.gain.cancelScheduledValues(now);
+  masterGain.gain.setValueAtTime(masterGain.gain.value, now);
+  masterGain.gain.linearRampToValueAtTime(0.0001, now+1.2);
+  musicPlaying = false;
+}
+function playNote(freq, duration=1.0, attack=0.01, release=0.6){
+  if(!audioCtx) initAudio();
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  // approximate a piano-ish timbre with two detuned oscillators and a highpass
+  const osc2 = audioCtx.createOscillator();
+  osc.type='triangle';
+  osc2.type='sine';
+  osc.frequency.value = freq;
+  osc2.frequency.value = freq*1.003;
+  g.gain.value = 0.0;
+  osc.connect(g);
+  osc2.connect(g);
+  g.connect(masterGain);
+  const now = audioCtx.currentTime;
+  g.gain.setValueAtTime(0.0001, now);
+  g.gain.linearRampToValueAtTime(0.9, now+attack);
+  g.gain.exponentialRampToValueAtTime(0.0001, now+attack+duration+release);
+  osc.start(now);
+  osc2.start(now);
+  osc.stop(now+duration+release+0.1);
+  osc2.stop(now+duration+release+0.1);
+}
+
+/* Mic blow detection */
+let micStream, analyser, dataArray, rafId;
+const enableMicBtn = document.getElementById('enableMic');
+const fallbackBtn = document.getElementById('fallbackBlow');
+enableMicBtn.onclick = async ()=>{
+  try{
+    micStream = await navigator.mediaDevices.getUserMedia({audio:true});
+    document.getElementById('micperm').textContent = 'Microphone ready — blow gently!';
+    initAudio(); // ensure audio context exists (will ask user gesture later on some browsers)
+    const micCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const src = micCtx.createMediaStreamSource(micStream);
+    analyser = micCtx.createAnalyser();
+    analyser.fftSize = 2048;
+    src.connect(analyser);
+    dataArray = new Uint8Array(analyser.fftSize);
+    monitorMic();
+  }catch(e){
+    console.error(e);
+    document.getElementById('micperm').textContent = 'Microphone access denied or unavailable. Use the "Tap to Blow" button instead.';
+  }
+};
+fallbackBtn.onclick = ()=> triggerBlow();
+
+/* compute RMS of mic input */
+function monitorMic(){
+  if(!analyser) return;
+  analyser.getByteTimeDomainData(dataArray);
+  let sum = 0;
+  for(let i=0;i<dataArray.length;i++){
+    const v = (dataArray[i]-128)/128;
+    sum += v*v;
+  }
+  const rms = Math.sqrt(sum / dataArray.length);
+  // threshold tuned for "blowing" sound; might need adjustment on some devices
+  if(rms > 0.12){
+    // require a short sustained burst
+    confirmBlow();
+  }
+  rafId = requestAnimationFrame(monitorMic);
+}
+
+let blowConfirmTimer = null;
+function confirmBlow(){
+  if(blowConfirmTimer) return;
+  // require ~250ms sustained above threshold
+  blowConfirmTimer = setTimeout(()=> {
+    blowConfirmTimer = null;
+    triggerBlow();
+  }, 250);
+}
+
+/* What happens when blow is detected */
+let blown=false;
+function triggerBlow(){
+  if(blown) return;
+  blown = true;
+  // extinguish flames
+  document.querySelectorAll('.flame').forEach(f=>{
+    f.style.transition = 'opacity .8s ease, transform .9s ease';
+    f.style.opacity = '0';
+    f.style.transform = 'scale(.6) translateY(-12px)';
+  });
+  // soft glow out
+  document.getElementById('candles').style.transition = 'filter 1.2s ease, opacity 1.2s';
+  document.getElementById('candles').style.filter = 'blur(6px)';
+  // start music & slideshow after a small delay
+  setTimeout(()=>{
+    // resume/create audio context in a user gesture context if suspended
+    if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    else if(!audioCtx) initAudio();
+    // play the piano-ish loop
+    playPianoLoop();
+    // animate slides
+    document.getElementById('intro').style.transition='opacity .8s';
+    document.getElementById('intro').style.opacity='0';
+    setTimeout(()=>{
+      document.getElementById('intro').style.display='none';
+      document.getElementById('slides').style.display='block';
+      showSlide(0);
+      // auto-advance slides every 4 seconds
+      let idx=0;
+      const slideTimer = setInterval(()=>{
+        idx++;
+        if(idx<slides.length) showSlide(idx);
+        else {
+          clearInterval(slideTimer);
+          // show end actions
+          document.getElementById('endActions').style.display='block';
+        }
+      },4200);
+    },900);
+  },700);
+}
+
+/* Controls */
+document.getElementById('replayBtn').onclick = ()=>{
+  // reset
+  blown=false;
+  // restore intro
+  document.getElementById('slides').style.display='none';
+  document.getElementById('intro').style.display='flex';
+  document.getElementById('intro').style.opacity='1';
+  document.querySelectorAll('.flame').forEach(f=>{
+    f.style.opacity='1';
+    f.style.transform='none';
+  });
+  // stop music
+  stopMusic();
+  // re-enable mic monitoring
+  if(micStream && typeof micStream.getTracks==='function'){
+    // keep stream active; monitorMic continues
+  }
+  document.getElementById('endActions').style.display='none';
+  showSlide(0);
+};
+
+document.getElementById('restart').onclick = ()=>{
+  location.reload();
+};
+
+document.getElementById('mute').onclick = ()=>{
+  isMuted = !isMuted;
+  if(masterGain) masterGain.gain.value = isMuted?0:0.22;
+  document.getElementById('mute').textContent = isMuted? 'Unmute':'Mute';
+};
+
+/* initial state */
+document.getElementById('slides').style.display='none';
+showSlide(0);
+</script>
+</body>
+</html>
